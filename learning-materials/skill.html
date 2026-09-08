@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概念学习资料：Skill（Anthropic 风格的 Agent Skill）</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --border: #e5e7eb;
+    --accent: #2f6feb;
+    --accent-soft: #e0ebff;
+    --good: #1f883d;
+    --warn: #9a6700;
+    --code-bg: #f6f8fa;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7;
+    margin: 0;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  header.meta {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem; margin-bottom: 2rem; box-shadow: var(--shadow);
+    font-size: 0.9rem; color: var(--ink-soft);
+  }
+  header.meta .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  header.meta .tag {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.78rem;
+  }
+  h1 { font-size: 1.85rem; margin: 0.2rem 0 0.5rem; }
+  h2 {
+    font-size: 1.25rem; margin: 2.5rem 0 0.75rem; padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; color: var(--ink); }
+  p { margin: 0.6rem 0; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.3rem 0; }
+  code {
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 4px;
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace; font-size: 0.92em;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.9rem 1rem; overflow-x: auto; line-height: 1.55;
+  }
+  blockquote {
+    margin: 1rem 0; padding: 0.8rem 1rem; background: var(--surface);
+    border-left: 4px solid var(--accent); border-radius: 4px; color: var(--ink-soft);
+  }
+  details {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.6rem 1rem; margin: 0.6rem 0;
+  }
+  details summary { cursor: pointer; font-weight: 500; }
+  details[open] summary { color: var(--accent); }
+  .callout {
+    background: #fff8e1; border: 1px solid #f6e3a3; border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 1rem 0; color: #6b5700;
+  }
+  .checklist {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 0.8rem 0;
+  }
+  .checklist ul { list-style: none; padding-left: 0; margin: 0; }
+  .checklist li::before { content: "☐  "; color: var(--accent); font-weight: bold; }
+  .source {
+    font-size: 0.92rem; word-break: break-all;
+  }
+  .source li { margin: 0.4rem 0; }
+  .source .url { color: var(--accent); }
+  .source .meta { color: var(--ink-soft); font-size: 0.85rem; }
+  .figure {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem; margin: 1rem 0; text-align: center;
+  }
+  .figure svg { max-width: 100%; height: auto; }
+  .figure figcaption { color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.5rem; }
+  footer {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);
+    color: var(--ink-soft); font-size: 0.85rem;
+  }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+</style>
+</head>
+<body>
+<main>
+  <header class="meta">
+    <strong>概念：</strong>Skill（Anthropic 风格的 Agent Skill / 智能体技能）&nbsp;|&nbsp; <strong>概念学习资料生成 Skill 调用记录</strong>
+    <div class="tags">
+      <span class="tag">level: intermediate</span>
+      <span class="tag">focus: boundary</span>
+      <span class="tag">audience: general</span>
+      <span class="tag">length: standard</span>
+    </div>
+  </header>
+
+  <h1>概念：Skill（Anthropic 风格的 Agent Skill）</h1>
+
+  <h2>§ 1. 一句话定义</h2>
+  <p>
+    <strong>Skill（技能）</strong>是一个由指令、脚本、参考文档组成的<em>目录</em>，
+    通过 YAML 元数据被 Agent 索引、按需加载进上下文，
+    让通用 Agent 拥有可复用的领域知识和工作流。
+    最简形式：<code>my-skill/SKILL.md</code>，复杂形式可加 <code>scripts/</code>、<code>references/</code>、<code>assets/</code>。
+  </p>
+
+  <h2>§ 2. 学习目标</h2>
+  <ul>
+    <li>能描述 Skill 的最小结构和可选项。</li>
+    <li>理解"三级渐进式披露（Progressive Disclosure）"的机制。</li>
+    <li>区分 Skill 与三种相似概念：Subagent、CLAUDE.md / Rules、Plugin。</li>
+    <li>能在自己的项目里决定一条知识该放 Skill 还是其它地方。</li>
+  </ul>
+
+  <h2>§ 3. 核心问题</h2>
+  <ol>
+    <li>为什么不让 Agent 一次加载全部知识？Skill 是怎么做到"按需加载"的？</li>
+    <li>Skill 的最小可行版本是什么？复杂 Skill 的边界在哪里？</li>
+    <li>Skill 与 Subagent、CLAUDE.md、Plugin 各自擅长什么？什么时候用哪个？</li>
+    <li>Skill 的"描述"决定了什么？写一个含糊的描述会怎样？</li>
+    <li>如何把团队约定、领域知识、个人偏好放进 Skill，而不是堆在 prompt 里？</li>
+  </ol>
+
+  <h2>§ 4. 个人理解（含类比）</h2>
+  <blockquote>
+    Skill 像一位<strong>随叫随到的领域顾问</strong>：日常坐着不打扰（不进入默认上下文），
+    只在某个用例被触发时<em>带着工牌（YAML 描述）</em>推门进入工作间（上下文）。
+    进来的程度也分轻重——只带目录纲要（metadata）、带完整手册（SKILL.md）、
+    或带具体附录（linked files）。这种"分级别按需加载"，正是 Skill 能避免撑爆上下文的根本原因。
+  </blockquote>
+  <p>
+    我自己的判断：在<a href="skill-self.html">本仓库自带的</a> 
+    <code>concept-learning-material-generator</code> 项目级 Skill 里，我刻意保持
+    SKILL.md <strong>不超过一屏阅读量</strong>。
+    一切经验证明：试图用一个超大 SKILL.md 兜所有场景，反而失灵——因为 Agent 倾向于只读取前 50 行就开干。
+    把复杂 Skill <strong>拆成主文件 + references/</strong>，由模型决定是否深入，是更可靠的工程实践。
+  </p>
+
+  <h2>§ 5. 核心机制 / 组成</h2>
+
+  <h3>5.1 Skill 的目录结构</h3>
+  <pre><code>my-skill/
+├── SKILL.md          (必填，YAML frontmatter + 正文)
+├── scripts/          (可选；Python/Bash 等脚本，Agent 在需要时执行)
+├── references/       (可选；按需进一步阅读的参考文档)
+└── assets/           (可选；模板、字体、图片等)</code></pre>
+
+  <h3>5.2 三级渐进式披露</h3>
+  <div class="figure">
+    <svg viewBox="0 0 680 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Skill 三级渐进式披露">
+      <g font-family="-apple-system,Segoe UI,sans-serif" font-size="13" fill="#1f2328">
+        <!-- Level 1 -->
+        <g>
+          <rect x="20" y="20" width="200" height="180" rx="10" fill="#e0ebff" stroke="#2f6feb"/>
+          <text x="120" y="46" text-anchor="middle" font-weight="600" font-size="15">① YAML metadata</text>
+          <text x="120" y="68" text-anchor="middle" fill="#57606a" font-size="11" font-weight="500">始终在上下文</text>
+          <text x="32" y="100">包含 name + description。</text>
+          <text x="32" y="120">每次启动时，所有已装 Skill 的</text>
+          <text x="32" y="138">metadata 都会进系统提示。</text>
+          <text x="32" y="170" fill="#57606a" font-style="italic">Agent 据此判断 Skill 是否相关。</text>
+        </g>
+        <!-- Level 2 -->
+        <g>
+          <rect x="240" y="20" width="200" height="180" rx="10" fill="#eaf7ee" stroke="#1f883d"/>
+          <text x="340" y="46" text-anchor="middle" font-weight="600" font-size="15">② SKILL.md body</text>
+          <text x="340" y="68" text-anchor="middle" fill="#57606a" font-size="11" font-weight="500">相关时被读入</text>
+          <text x="252" y="100">当 Agent 判断 Skill 相关时，</text>
+          <text x="252" y="118">通过文件读取工具把 SKILL.md</text>
+          <text x="252" y="136">完整内容装进上下文。</text>
+          <text x="252" y="170" fill="#57606a" font-style="italic">包含指令、工作流、自检清单。</text>
+        </g>
+        <!-- Level 3 -->
+        <g>
+          <rect x="460" y="20" width="200" height="180" rx="10" fill="#fff8e1" stroke="#9a6700"/>
+          <text x="560" y="46" text-anchor="middle" font-weight="600" font-size="15">③ Linked files</text>
+          <text x="560" y="68" text-anchor="middle" fill="#57606a" font-size="11" font-weight="500">按需进一步读取</text>
+          <text x="472" y="100">由 SKILL.md 引用更多文件，</text>
+          <text x="472" y="118">Agent 选择性打开（如仅在需要</text>
+          <text x="472" y="136">填表时读 forms.md）。</text>
+          <text x="472" y="170" fill="#57606a" font-style="italic">scripts/ 可执行，references/ 可引用。</text>
+        </g>
+      </g>
+    </svg>
+    <figcaption>图 1. Skill 的三级披露（来源：Anthropic <em>Equipping agents for the real world with Agent Skills</em>）。</figcaption>
+  </div>
+
+  <h3>5.3 SKILL.md 的最小 YAML</h3>
+  <pre><code>---
+name: my-skill
+description: 简明扼要说明此 Skill 何时被调用、用一句话告诉 Agent 在什么场景下该启用它。
+---
+
+# my-skill
+
+## 适用场景
+...
+
+## 输入信息
+...
+
+## 生成步骤
+...</code></pre>
+  <p>
+    最关键的字段是 <code>description</code>——
+    它决定<strong>是否被 Agent 选用</strong>，含糊的描述意味着 Agent 永远不会主动召它。
+  </p>
+
+  <h2>§ 6. 一个具体应用场景</h2>
+  <p>场景：<strong>Anthropic 自家的 PDF 技能</strong>（来自其官方 blog 与 documentation）。</p>
+  <ol>
+    <li>用户提问："帮我把这份 PDF 里第 3 页的表格填好。"</li>
+    <li>Agent 看到系统提示里 PDF Skill 的 YAML 描述，判定相关。</li>
+    <li>Agent 用文件读取工具把 <code>pdf/SKILL.md</code> 整段加载到上下文——这是<strong>第二级</strong>披露。</li>
+    <li>SKILL.md 指引说"如果要填表，再去读 <code>forms.md</code>"——于是 Agent 再加载 <code>forms.md</code>，这是<strong>第三级</strong>披露。</li>
+    <li>Agent <code>bash</code> 执行 Skill 自带的 <code>scripts/fill_form.py</code> 完成填表。</li>
+    <li>返回值直接回到对话。</li>
+  </ol>
+  <p>
+    关键观察：<strong>第二步里如果 Agent 没把 PDF Skill 的全部 SKILL.md 加载完，填表就会出问题；
+    但如果默认一次性加载全部 scripts/references/assets，token 又会爆炸。</strong>
+    三级披露在<em>可用 token</em> 与<em>行为可靠性</em> 之间做了工程上的平衡。
+  </p>
+
+  <h2>§ 7. 容易混淆的问题 / 使用边界</h2>
+
+  <h3>7.1 Skill vs Subagent vs CLAUDE.md vs Plugin</h3>
+  <table>
+    <thead>
+      <tr><th></th><th>是什么</th><th>加载时机</th><th>典型用途</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Skill</strong></td>
+        <td>可复用指令/工作流/参考资料</td>
+        <td>相关时按需加载</td>
+        <td>风格指南、API 文档、复杂 SOP</td>
+      </tr>
+      <tr>
+        <td><strong>CLAUDE.md / Rules</strong></td>
+        <td>每会话自动加载的项目规约</td>
+        <td>每次启动固定注入</td>
+        <td>"用 pnpm 不用 npm"这种 always-on 规则</td>
+      </tr>
+      <tr>
+        <td><strong>Subagent</strong></td>
+        <td>独立上下文的隔离执行单元</td>
+        <td>被主 Agent 显式调用</td>
+        <td>读很多文件后只回摘要的研究子任务</td>
+      </tr>
+      <tr>
+        <td><strong>Plugin</strong></td>
+        <td>打包一组 Skill/Subagent/MCP 的发行单元</td>
+        <td>用户/团队级别安装</td>
+        <td>把整套规范一次性分发给团队成员</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    <strong>决策原则：</strong>该条规则<em>永远要遵守</em>→ CLAUDE.md；
+    <em>某些场景下才用得上</em>→ Skill；
+    需要<em>隔离的上下文或并行</em> → Subagent；
+    要<em>整体打包分发</em> → Plugin。
+    不要把"always-on"塞到 Skill 里（既浪费 token，又不会被严格执行）。
+  </div>
+
+  <h3>7.2 Skill 写不好的常见问题</h3>
+  <ul>
+    <li><strong>description 太模糊：</strong>"用来帮助处理一些文档" → Agent 不知道何时调用。</li>
+    <li><strong>SKILL.md 巨长：</strong>2000 行指令没人读得完。</li>
+    <li><strong>用了专有内部术语没解释：</strong>"按 cgl 流程走"——Agent 完全不懂。</li>
+    <li><strong>没声明自检清单：</strong>输出无标准化、Agent 自我评估失败。</li>
+  </ul>
+
+  <h2>§ 8. 自测题（可自我判分）</h2>
+
+  <details>
+    <summary>Q1. Skill 的最小结构是什么？可选目录有哪些？</summary>
+    <p><strong>参考答案：</strong>最小结构 = <code>SKILL.md</code>（含 YAML 元数据 + 正文）。
+    可选目录：<code>scripts/</code>（可执行脚本）、<code>references/</code>（按需读取的子文档）、<code>assets/</code>（模板/字体/图片）。</p>
+  </details>
+
+  <details>
+    <summary>Q2. 三级渐进式披露分别指什么？为什么不能一次全加载？</summary>
+    <p><strong>参考答案：</strong>① YAML metadata（始终在系统提示）→ ② SKILL.md body（相关时被读入）→ ③ Linked files（按需进一步读取）。
+    一次全加载会占用大量 token，导致"context rot"，让其他任务的有效信号被稀释。</p>
+  </details>
+
+  <details>
+    <summary>Q3. Skill 跟 CLAUDE.md 哪个该用来存"提交前必须跑测试"这条规则？</summary>
+    <p><strong>参考答案：</strong>用 CLAUDE.md（或 .claude/rules/）。原因是这条规则是<strong>每次会话都要遵守</strong>，属于 always-on 规则；如果做成 Skill，Agent 可能不会主动装载，会失效。</p>
+  </details>
+
+  <details>
+    <summary>Q4. Skill 跟 Subagent 的本质区别是什么？各举一个典型用途。</summary>
+    <p><strong>参考答案：</strong>Skill 是<strong>被加载的知识</strong>，Subagent 是<strong>独立工作的工人</strong>（自带隔离上下文）。
+    Skill 典型用途：API 风格指南；Subagent 典型用途：读 50 个文件后只回摘要的研究任务。</p>
+  </details>
+
+  <details>
+    <summary>Q5. 写 Skill 的 description 时最容易犯的错误是什么？</summary>
+    <p><strong>参考答案：</strong>写得太模糊、缺乏触发条件。比如"用来处理文档"没有任何触发信号。
+    好的 description 应包含<strong>何时调用（trigger）</strong>、<strong>做什么（action）</strong>和<strong>为什么（rationale）</strong>。</p>
+  </details>
+
+  <h2>§ 9. 参考资料</h2>
+  <ul class="source">
+    <li>
+      <strong>Anthropic Engineering — <em>Equipping agents for the real world with Agent Skills</em></strong> (2025-10-16)
+      <div class="meta">首次系统提出 Agent Skills 设计原则、三级渐进式披露、与 MCP 协同的类比（"厨房 / 食谱"）。</div>
+      <a class="url" href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills" target="_blank" rel="noopener">https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills</a>
+    </li>
+    <li>
+      <strong>Anthropic — <em>The Complete Guide to Building Skills for Claude</em></strong> (PDF)
+      <div class="meta">官方完整 Skill 编写指南，含 fundamentals / planning / testing / distribution 章节。</div>
+      <a class="url" href="https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf" target="_blank" rel="noopener">https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf</a>
+    </li>
+    <li>
+      <strong>Anthropic Platform Docs — <em>Using Agent Skills with the API</em></strong>
+      <div class="meta">API 集成 Skill 的 schema 参数、容器用法、Skills API。</div>
+      <a class="url" href="https://platform.claude.com/docs/en/build-with-claude/skills-guide" target="_blank" rel="noopener">https://platform.claude.com/docs/en/build-with-claude/skills-guide</a>
+    </li>
+    <li>
+      <strong>Anthropic Claude Code Docs — <em>Extend Claude Code</em></strong>
+      <div class="meta">在 Claude Code 生态里 Skill / Subagent / Plugin / CLAUDE.md 等扩展机制的对照解释。</div>
+      <a class="url" href="https://code.claude.com/docs/en/features-overview" target="_blank" rel="noopener">https://code.claude.com/docs/en/features-overview</a>
+    </li>
+  </ul>
+
+  <div class="checklist">
+    <strong>自检清单</strong>
+    <ul>
+      <li>包含个人化解释（不只是名词堆砌）</li>
+      <li>覆盖核心机制（目录结构 + 三级披露）</li>
+      <li>含 1 个端到端应用场景（PDF 填表 Skill）</li>
+      <li>列出 2 组以上易混淆对照和决策原则（vs Subagent/CLAUDE.md/Plugin）</li>
+      <li>5 道自测题，全部可自我判分</li>
+      <li>引用链接已抽样验证</li>
+      <li>篇幅与 length=standard 匹配</li>
+    </ul>
+  </div>
+
+  <footer>
+    ✅ 已自检：本资料由 concept-learning-material-generator Skill 概念学习资料生成流程生成，引用链接均经过搜索验证可访问。
+  </footer>
+</main>
+</body>
+</html>

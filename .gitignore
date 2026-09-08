@@ -1,0 +1,39 @@
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# 编辑器 / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Node / 前端
+node_modules/
+dist/
+.next/
+.cache/
+
+# 日志
+*.log
+
+# 临时文件
+*.tmp
+*.bak
+
+# WorkBuddy 会话级运行时数据（不进 git）
+.workbuddy/sessions/
+.workbuddy/memory/
+
+# 但保留项目级 Skill
+!.workbuddy/skills/

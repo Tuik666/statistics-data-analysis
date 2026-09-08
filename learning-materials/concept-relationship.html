@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概念关系：Agent × 大模型的上下文 × Skill</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --border: #e5e7eb;
+    --accent: #2f6feb;
+    --accent-soft: #e0ebff;
+    --good: #1f883d;
+    --warn: #9a6700;
+    --code-bg: #f6f8fa;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7;
+    margin: 0;
+  }
+  main { max-width: 920px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  header.meta {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem; margin-bottom: 2rem; box-shadow: var(--shadow);
+    font-size: 0.9rem; color: var(--ink-soft);
+  }
+  header.meta .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  header.meta .tag {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.78rem;
+  }
+  h1 { font-size: 1.85rem; margin: 0.2rem 0 0.5rem; }
+  h2 {
+    font-size: 1.25rem; margin: 2.5rem 0 0.75rem; padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; color: var(--ink); }
+  p { margin: 0.6rem 0; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.3rem 0; }
+  code {
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 4px;
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace; font-size: 0.92em;
+  }
+  blockquote {
+    margin: 1rem 0; padding: 0.8rem 1rem; background: var(--surface);
+    border-left: 4px solid var(--accent); border-radius: 4px; color: var(--ink-soft);
+  }
+  .callout {
+    background: #fff8e1; border: 1px solid #f6e3a3; border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 1rem 0; color: #6b5700;
+  }
+  .figure {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem; margin: 1.5rem 0; text-align: center;
+  }
+  .figure svg { max-width: 100%; height: auto; }
+  .figure figcaption { color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.5rem; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { border: 1px solid var(--border); padding: 0.5rem 0.7rem; text-align: left; vertical-align: top; }
+  th { background: var(--code-bg); }
+  footer {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);
+    color: var(--ink-soft); font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="meta">
+    <strong>关系说明：</strong>Agent × 大模型的上下文 × Skill &nbsp;|&nbsp; <strong>概念学习资料生成 Skill 调用记录</strong>
+    <div class="tags">
+      <span class="tag">level: intermediate</span>
+      <span class="tag">focus: relationship</span>
+      <span class="tag">audience: general</span>
+      <span class="tag">length: standard</span>
+    </div>
+  </header>
+
+  <h1>三个概念是怎么相互作用的</h1>
+
+  <p>
+    Agent、LLM Context、Skill 三个概念常被混在一起讲，
+    但它们其实是不同层次的东西。这里给出它们之间的关系结构，
+    重点解释<strong>上下文如何影响 Agent 的工作</strong>，
+    以及<strong>Skill 如何沉淀可复用的任务知识</strong>。
+  </p>
+
+  <h2>§ 1. 一句话比喻</h2>
+  <blockquote>
+    <strong>Agent</strong> 是一位<em>长跑选手</em>；<br>
+    <strong>Context</strong> 是它随身携带的<em>工作台</em>，决定了它<em>当前能看到、能想起、能用上</em>的全部信息；<br>
+    <strong>Skill</strong> 是贴在工作台上、随时可打开的<em>操作手册合集</em>，
+    让选手不必每次从零摸索。
+  </blockquote>
+
+  <h2>§ 2. 三者的层次关系图</h2>
+  <div class="figure">
+    <svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" role="img"
+         aria-label="Agent Context Skill 三层关系示意图">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2f6feb"/>
+        </marker>
+      </defs>
+
+      <!-- center: Context -->
+      <g>
+        <rect x="350" y="140" width="220" height="80" rx="12"
+              fill="#e0ebff" stroke="#2f6feb" stroke-width="2"/>
+        <text x="460" y="172" text-anchor="middle" font-weight="700" font-size="18"
+              fill="#1f2328" font-family="-apple-system,Segoe UI,sans-serif">大模型的上下文</text>
+        <text x="460" y="195" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">有限的工作台/注意力预算</text>
+        <text x="460" y="212" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">每一步推理前都要重新挑选</text>
+      </g>
+
+      <!-- left: Agent -->
+      <g>
+        <rect x="50" y="60" width="180" height="80" rx="12"
+              fill="#eaf7ee" stroke="#1f883d" stroke-width="2"/>
+        <text x="140" y="92" text-anchor="middle" font-weight="700" font-size="18"
+              fill="#1f2328" font-family="-apple-system,Segoe UI,sans-serif">Agent</text>
+        <text x="140" y="114" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">长跑选手</text>
+      </g>
+      <g>
+        <rect x="50" y="220" width="180" height="80" rx="12"
+              fill="#eaf7ee" stroke="#1f883d" stroke-width="2"/>
+        <text x="140" y="252" text-anchor="middle" font-weight="700" font-size="18"
+              fill="#1f2328" font-family="-apple-system,Segoe UI,sans-serif">LLM 模型本体</text>
+        <text x="140" y="274" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">参数化的"本能"</text>
+      </g>
+
+      <!-- right: Skill -->
+      <g>
+        <rect x="690" y="60" width="180" height="80" rx="12"
+              fill="#fff8e1" stroke="#9a6700" stroke-width="2"/>
+        <text x="780" y="92" text-anchor="middle" font-weight="700" font-size="18"
+              fill="#1f2328" font-family="-apple-system,Segoe UI,sans-serif">Skill 知识库</text>
+        <text x="780" y="114" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">文件系统里的可重用经验</text>
+      </g>
+      <g>
+        <rect x="690" y="220" width="180" height="80" rx="12"
+              fill="#fff8e1" stroke="#9a6700" stroke-width="2"/>
+        <text x="780" y="252" text-anchor="middle" font-weight="700" font-size="18"
+              fill="#1f2328" font-family="-apple-system,Segoe UI,sans-serif">MCP / Tools</text>
+        <text x="780" y="274" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">触达外部世界的能力</text>
+      </g>
+
+      <!-- arrows -->
+      <g fill="none" stroke="#2f6feb" stroke-width="1.6">
+        <!-- Skill -> Context (按需注入) -->
+        <path d="M690 100 Q580 100 570 160" marker-end="url(#arr)"/>
+        <text x="600" y="120" text-anchor="middle" fill="#9a6700" font-size="11"
+              font-family="-apple-system,Segoe UI,sans-serif">按需注入</text>
+
+        <!-- MCP -> Context -->
+        <path d="M780 220 Q780 200 670 200" marker-end="url(#arr)"/>
+
+        <!-- Model -> Context -->
+        <path d="M230 260 Q330 220 350 200" marker-end="url(#arr)"/>
+        <text x="290" y="240" text-anchor="middle" fill="#1f883d" font-size="11"
+              font-family="-apple-system,Segoe UI,sans-serif">决定推理</text>
+
+        <!-- Context -> Agent -->
+        <path d="M350 170 Q280 130 230 100" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+        <text x="290" y="130" text-anchor="middle" fill="#2f6feb" font-size="11"
+              font-family="-apple-system,Segoe UI,sans-serif">影响行为</text>
+      </g>
+
+      <!-- key insight box -->
+      <g>
+        <rect x="40" y="320" width="840" height="30" rx="6" fill="#f6f8fa" stroke="#e5e7eb"/>
+        <text x="460" y="340" text-anchor="middle" fill="#57606a" font-size="12"
+              font-family="-apple-system,Segoe UI,sans-serif">
+          关键洞察：上下文是 Agent 的"工作记忆"，Skill 是 Agent 的"工作手册"，模型是它的大脑。
+        </text>
+      </g>
+    </svg>
+    <figcaption>图 1. Agent / Context / Skill 三层关系。Skill 与 MCP 通过"按需加载/调用"成为上下文的一部分；模型本体在上下文驱动下推理；最终形成 Agent 的动作。</figcaption>
+  </div>
+
+  <h2>§ 3. 上下文如何影响 Agent 的工作（重点）</h2>
+  <p>
+    这是我认为最重要的关系：<strong>上下文是 Agent 的工作状态</strong>，它的内容直接决定 Agent
+    这一刻能不能做出正确判断。
+  </p>
+
+  <h3>3.1 影响面 1：决策质量</h3>
+  <ul>
+    <li>放进上下文里的关键信息，Agent <em>可能</em>用到；</li>
+    <li>没放进上下文，再重要的信息也"不在现场"——Agent 只能猜；</li>
+    <li>放进<em>错误</em>的上下文，Agent 会基于错误前提推理（<strong>garbage in, garbage out</strong>）。</li>
+  </ul>
+
+  <h3>3.2 影响面 2：能记住多远</h3>
+  <ul>
+    <li>上下文窗口外的历史，对 Agent 来说<strong>等于不存在</strong>。</li>
+    <li>连续多轮工具调用后，<strong>上下文会越来越长</strong>，触发 context rot，质量下降。</li>
+    <li>这就是为什么长时运行的 Agent 必须配合 compaction / structured notes / sub-agents 三件套。</li>
+  </ul>
+
+  <h3>3.3 影响面 3：工具与能力</h3>
+  <ul>
+    <li>Agent 能调用的工具（tool descriptions + MCP）<em>本身</em>也消耗上下文 token。</li>
+    <li>工具描述写得太啰嗦，会挤压有效推理空间。</li>
+    <li>结论："好工具"既要<strong>够清晰</strong>让 Agent 会用，也要<strong>够简洁</strong>别占地盘。</li>
+  </ul>
+
+  <h3>3.4 影响面 4：稳定性与可复现</h3>
+  <ul>
+    <li>同一段 prompt 放在不同上下文里，输出可能差很大。</li>
+    <li>想复现 Agent 的行为，不能只固定 prompt，还要固定"上下文配方"（注入了哪些检索、什么工具历史）——这就是<strong>评测</strong>工作的挑战。</li>
+  </ul>
+
+  <h2>§ 4. Skill 如何沉淀可复用的任务知识</h2>
+
+  <h3>4.1 沉淀什么</h3>
+  <ul>
+    <li><strong>可复用的指令：</strong>团队风格、领域规范、固定的工作流。</li>
+    <li><strong>工具用法说明：</strong>"在这种 MCP 上该怎么调、常见错误码含义"。</li>
+    <li><strong>领域知识：</strong>行业术语、内部代号、最佳实践。</li>
+    <li><strong>自检清单：</strong>"输出前自检这些项"的标准化流程。</li>
+  </ul>
+
+  <h3>4.2 怎么不撑爆上下文</h3>
+  <ul>
+    <li>三级渐进式披露：YAML metadata（始终可见且便宜）→ SKILL.md body（相关时才加载）→ 链接文件（用不到绝不加载）。</li>
+    <li>Skill 互相组合：每个 Skill 保持<strong>单一职责</strong>，多 Skill 并存，不堆在一个 mega-Skill 里。</li>
+    <li>Skill 可执行脚本可被 Agent <code>bash</code> 调用，不必把实现读进上下文。</li>
+  </ul>
+
+  <h3>4.3 与 CLAUDE.md / Rules 的分工</h3>
+  <ul>
+    <li>"每次会话都该遵守" → CLAUDE.md / Rules（always-on）。</li>
+    <li>"只在某个场景下调用" → Skill（on-demand）。</li>
+    <li>"需要执行复杂流程" → Skill + scripts。</li>
+  </ul>
+
+  <h2>§ 5. 共同点与分工对照表</h2>
+  <table>
+    <thead>
+      <tr><th></th><th>Agent</th><th>大模型的上下文</th><th>Skill</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>是什么</strong></td>
+        <td>一个能自治完成任务的应用形态</td>
+        <td>模型一次推理时输入的全部 token</td>
+        <td>可被 Agent 加载的知识 / 工作流</td>
+      </tr>
+      <tr>
+        <td><strong>作用层面</strong></td>
+        <td>系统级（整个产品形态）</td>
+        <td>推理级（每次 LLM 调用）</td>
+        <td>资产级（仓库目录）</td>
+      </tr>
+      <tr>
+        <td><strong>生命周期</strong></td>
+        <td>任务存续期</td>
+        <td>随每次推理动态构建</td>
+        <td>长期存在，可版本化管理</td>
+      </tr>
+      <tr>
+        <td><strong>谁写它</strong></td>
+        <td>开发者/团队</td>
+        <td>每次由框架拼装</td>
+        <td>开发者/团队（可社区共享）</td>
+      </tr>
+      <tr>
+        <td><strong>出错代价</strong></td>
+        <td>任务失败 / 越权</td>
+        <td>推理质量下降 / 幻觉</td>
+        <td>被忽略 / 误用</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>§ 6. 它们在一起时，一条请求的工作链路</h2>
+  <ol>
+    <li><strong>用户输入</strong>到达 Agent 框架。</li>
+    <li>框架拼装本次推理的<strong>上下文</strong>：系统提示 + 工具定义 + 检索结果 + 历史 + 当前消息。</li>
+    <li>System prompt 包含<strong>已装 Skill 的 metadata</strong>，Agent 据此判断哪些 Skill 相关。</li>
+    <li>若相关，用文件读取工具把对应 <strong>Skill 的 SKILL.md</strong> 装进上下文。</li>
+    <li>模型基于<strong>这份上下文</strong>推理出下一步动作。</li>
+    <li>如果动作是调用工具，得到结果，再次进入第 2 步循环。</li>
+    <li>逼近上下文上限时，框架可能触发 compaction / 写 NOTES.md / 把子任务交给 Subagent。</li>
+  </ol>
+  <p>
+    可以看到：<strong>每一轮推理都要重新决定上下文的形状</strong>，
+    而 Skill 是<em>可以在合适时机被自动塞进工作台</em>的工作手册。
+    这正是 Context Engineering 与 Skill 设计互相成就的过程。
+  </p>
+
+  <h2>§ 7. 学习路径建议</h2>
+  <ol>
+    <li>先看 <a href="agent.html">Agent</a>，理解整体形态与循环。</li>
+    <li>再看 <a href="llm-context.html">大模型的上下文</a>，理解每一次决策能看到什么。</li>
+    <li>最后看 <a href="skill.html">Skill</a>，理解如何把经验沉淀成可复用的资产。</li>
+    <li>回头读本页（<a href="concept-relationship.html">concept-relationship.html</a>），把三件事串成一张图。</li>
+  </ol>
+
+  <footer>
+    ✅ 已自检：本关系说明由 concept-learning-material-generator Skill 概念学习资料生成流程生成。
+    所有概念链接均指向本目录下的对应资料，可独立访问。
+  </footer>
+</main>
+</body>
+</html>

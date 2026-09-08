@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概念学习资料：Agent（智能体）</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --ink: #1f2328;
+    --ink-soft: #57606a;
+    --border: #e5e7eb;
+    --accent: #2f6feb;
+    --accent-soft: #e0ebff;
+    --good: #1f883d;
+    --warn: #9a6700;
+    --code-bg: #f6f8fa;
+    --shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    background: var(--bg); color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    font-size: 16px; line-height: 1.7;
+    margin: 0;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+  header.meta {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem 1.25rem; margin-bottom: 2rem; box-shadow: var(--shadow);
+    font-size: 0.9rem; color: var(--ink-soft);
+  }
+  header.meta .tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.4rem; }
+  header.meta .tag {
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 999px; padding: 0.15rem 0.6rem; font-size: 0.78rem;
+  }
+  h1 { font-size: 1.85rem; margin: 0.2rem 0 0.5rem; }
+  h2 {
+    font-size: 1.25rem; margin: 2.5rem 0 0.75rem; padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h3 { font-size: 1.05rem; margin: 1.5rem 0 0.4rem; color: var(--ink); }
+  p { margin: 0.6rem 0; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.3rem 0; }
+  code {
+    background: var(--code-bg); padding: 0.1rem 0.35rem; border-radius: 4px;
+    font-family: "JetBrains Mono", Consolas, "Courier New", monospace; font-size: 0.92em;
+  }
+  pre {
+    background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.9rem 1rem; overflow-x: auto; line-height: 1.55;
+  }
+  blockquote {
+    margin: 1rem 0; padding: 0.8rem 1rem; background: var(--surface);
+    border-left: 4px solid var(--accent); border-radius: 4px; color: var(--ink-soft);
+  }
+  details {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.6rem 1rem; margin: 0.6rem 0;
+  }
+  details summary { cursor: pointer; font-weight: 500; }
+  details[open] summary { color: var(--accent); }
+  .callout {
+    background: #fff8e1; border: 1px solid #f6e3a3; border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 1rem 0; color: #6b5700;
+  }
+  .checklist {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.8rem 1rem; margin: 0.8rem 0;
+  }
+  .checklist ul { list-style: none; padding-left: 0; margin: 0; }
+  .checklist li::before { content: "☐  "; color: var(--accent); font-weight: bold; }
+  .source {
+    font-size: 0.92rem; word-break: break-all;
+  }
+  .source li { margin: 0.4rem 0; }
+  .source .url { color: var(--accent); }
+  .source .meta { color: var(--ink-soft); font-size: 0.85rem; }
+  .figure {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 1rem; margin: 1rem 0; text-align: center;
+  }
+  .figure svg { max-width: 100%; height: auto; }
+  .figure figcaption { color: var(--ink-soft); font-size: 0.85rem; margin-top: 0.5rem; }
+  footer {
+    margin-top: 3rem; padding-top: 1.5rem; border-top: 1px dashed var(--border);
+    color: var(--ink-soft); font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="meta">
+    <strong>概念：</strong>Agent / 智能体 &nbsp;|&nbsp; <strong>概念学习资料生成 Skill 调用记录</strong>
+    <div class="tags">
+      <span class="tag">level: intermediate</span>
+      <span class="tag">focus: balanced</span>
+      <span class="tag">audience: general</span>
+      <span class="tag">length: standard</span>
+    </div>
+  </header>
+
+  <h1>概念：Agent（智能体）</h1>
+
+  <h2>§ 1. 一句话定义</h2>
+  <p>
+    <strong>Agent（智能体）</strong>是以大语言模型（LLM）作为决策核心，
+    能<em>感知</em>环境信息、<em>规划</em>步骤、调用<em>工具</em>，
+    并根据结果循环迭代以达成用户目标的系统。它不是"一次调用 LLM 回答问题"那么简单，
+    而是一个长期循环运行的自治任务执行者。
+  </p>
+
+  <h2>§ 2. 学习目标</h2>
+  <ul>
+    <li>能用一句话区分 Agent、工作流（Workflow）、聊天机器人（Chatbot）。</li>
+    <li>能复述 Agent 的三大组件（Planning / Memory / Tool use）及其作用。</li>
+    <li>理解 ReAct（推理 + 行动）循环的工作时序。</li>
+    <li>能在产品评估中判断"这个场景该不该用 Agent"。</li>
+  </ul>
+
+  <h2>§ 3. 核心问题</h2>
+  <ol>
+    <li>Agent 和 Workflow 的本质差异是什么？什么场景必须用 Agent？</li>
+    <li>为什么 Agent 需要 Memory？短期记忆和长期记忆各解决什么问题？</li>
+    <li>Tool use 让 Agent 得到了什么，又引入了什么风险？</li>
+    <li>Agent 的错误为什么会"复合放大"（compounding errors）？</li>
+    <li>评估 Agent 的产出和评估普通 LLM 的产出，有什么不一样？</li>
+  </ol>
+
+  <h2>§ 4. 个人理解（含类比）</h2>
+  <blockquote>
+    把 Agent 想成一个<strong>新入职的、能干但需要辅导的同事</strong>：
+    你给一个目标（"帮我准备这次季度评审"），它会自己去找相关数据、调工具、查邮箱、组织 PPT，
+    但每一步都可能判断错，需要你<em>设边界</em>、<em>给反馈</em>、<em>看过程日志</em>。
+    Workflow 更像一份<strong>SOP（标准操作流程）</strong>，每个步骤固定。
+    Agent 是能临场应变的版本，但代价是<strong>更大的不确定性和更高的成本</strong>。
+  </blockquote>
+  <p>
+    我自己的判断：当下大多数 LLM 应用 80% 的场景用普通 prompt + RAG 就够了，
+    只有当任务的步骤数不确定、需要动态分支、或者工具调用链太复杂时，
+    才值得付出 Agent 的额外成本与不确定性。这也是 Anthropic 在
+    <em>Building Effective Agents</em> 中反复强调的原则："<strong>只在简单方案已不够时再加复杂度</strong>"。
+  </p>
+
+  <h2>§ 5. 核心机制 / 组成</h2>
+  <h3>5.1 三大组件</h3>
+  <ul>
+    <li><strong>Planning（规划）：</strong>把复杂目标拆成可执行子步骤，并能在过程中反思修正。
+      典型技术：Chain-of-Thought、Tree of Thoughts、ReAct、Reflexion。</li>
+    <li><strong>Memory（记忆）：</strong>短期记忆 = 当前上下文窗口里的对话与思考；
+      长期记忆 = 外部向量库/数据库。</li>
+    <li><strong>Tool use（工具使用）：</strong>调用外部 API、代码执行、文件读写、搜索引擎等扩展模型能力。</li>
+  </ul>
+
+  <h3>5.2 ReAct 循环（机制示意）</h3>
+  <div class="figure">
+    <svg viewBox="0 0 680 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Agent ReAct 循环示意图">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5"
+                markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="#2f6feb"/>
+        </marker>
+      </defs>
+      <!-- nodes -->
+      <g font-family="-apple-system,Segoe UI,sans-serif" font-size="15" fill="#1f2328">
+        <g>
+          <rect x="40" y="80" width="120" height="60" rx="10" fill="#e0ebff" stroke="#2f6feb"/>
+          <text x="100" y="108" text-anchor="middle" font-weight="600">Thought</text>
+          <text x="100" y="128" text-anchor="middle" fill="#57606a" font-size="12">推理下一步要做什么</text>
+        </g>
+        <g>
+          <rect x="200" y="80" width="120" height="60" rx="10" fill="#eaf7ee" stroke="#1f883d"/>
+          <text x="260" y="108" text-anchor="middle" font-weight="600">Action</text>
+          <text x="260" y="128" text-anchor="middle" fill="#57606a" font-size="12">调用工具 / 给出答案</text>
+        </g>
+        <g>
+          <rect x="360" y="80" width="120" height="60" rx="10" fill="#fff8e1" stroke="#9a6700"/>
+          <text x="420" y="108" text-anchor="middle" font-weight="600">Observation</text>
+          <text x="420" y="128" text-anchor="middle" fill="#57606a" font-size="12">读取工具结果</text>
+        </g>
+        <g>
+          <rect x="520" y="80" width="120" height="60" rx="10" fill="#f6f8fa" stroke="#57606a"/>
+          <text x="580" y="108" text-anchor="middle" font-weight="600">循环 / 终止</text>
+          <text x="580" y="128" text-anchor="middle" fill="#57606a" font-size="12">完成目标 or 触发停止条件</text>
+        </g>
+      </g>
+      <!-- arrows -->
+      <g fill="none" stroke="#2f6feb" stroke-width="1.6">
+        <path d="M160 110 L200 110" marker-end="url(#arr)"/>
+        <path d="M320 110 L360 110" marker-end="url(#arr)"/>
+        <path d="M480 110 L520 110" marker-end="url(#arr)"/>
+        <!-- back to Thought -->
+        <path d="M580 140 Q580 200 100 200 Q100 175 100 140" marker-end="url(#arr)" stroke-dasharray="4 3"/>
+      </g>
+      <text x="340" y="195" text-anchor="middle" fill="#57606a"
+            font-size="12" font-family="-apple-system,Segoe UI,sans-serif">
+        如果目标未完成，回到 Thought 重新规划
+      </text>
+    </svg>
+    <figcaption>图 1. ReAct 推理-行动循环。来源：Yao et al., 2023（已列入参考资料）。</figcaption>
+  </div>
+
+  <h3>5.3 工作流 vs Agent 的分叉点</h3>
+  <p>
+    Anthropic 把"用不用 Agent"画成了<strong>控制流由谁决定</strong>的二分：
+    工作流的路径是开发者<strong>代码预先定义</strong>的（确定性的），
+    Agent 的路径是 LLM <strong>基于环境反馈自己决定</strong>的（动态的）。
+  </p>
+
+  <h2>§ 6. 一个具体应用场景</h2>
+  <p>场景：<strong>SWE-bench 风格的代码修复 Agent</strong>（Anthropic 自家部署示例）。</p>
+  <ol>
+    <li>用户输入："仓库里这个 issue 修了 build 失败，帮我修。"</li>
+    <li>Agent <strong>Planning</strong>：读取 issue → 在代码库里搜索相关文件 → 列出修改计划。</li>
+    <li>Agent <strong>执行</strong>：调用 <code>read_file</code> 看文件、<code>edit_file</code> 改代码、<code>run_tests</code> 验证。</li>
+    <li>如果测试失败，进入 <strong>Reflexion（反思）</strong> 步骤：分析错误日志，重新规划修改。</li>
+    <li>循环直到测试通过或达到最大迭代次数。</li>
+  </ol>
+  <p>
+    这个场景的关键不是"它很强"，而是"<strong>每一步都有可验证的反馈</strong>"
+    —— 测试通过了代表改对了，没通过就需要反思。这正是 Agent 最能发挥价值的地方：
+    任务可验证、能拿到 ground truth、可能多轮迭代。
+  </p>
+
+  <h2>§ 7. 容易混淆的问题 / 使用边界</h2>
+  <h3>7.1 Agent vs Chatbot / LLM 应用</h3>
+  <ul>
+    <li><strong>Chatbot</strong>：单轮或多轮对话，主要产出文本，一般不主动调用工具。</li>
+    <li><strong>LLM 应用</strong>：可能在 prompt 中嵌入了工具调用，但通常是一次性调用，路径由开发者预设。</li>
+    <li><strong>Agent</strong>：自主选择下一步，可能运行很多轮，能从环境反馈中恢复。</li>
+  </ul>
+
+  <h3>7.2 Agent vs Workflow（Anthropic 区分法）</h3>
+  <ul>
+    <li>Workflow：路径是<strong>代码预先固定</strong>（如提示链、编排者-工作者）。</li>
+    <li>Agent：路径是<strong>LLM 动态决定</strong>。</li>
+    <li>判断开关："你能不能描述出全部步骤？"——能则 Workflow；不能则可能需要 Agent。</li>
+  </ul>
+
+  <h3>7.3 何时不要用 Agent</h3>
+  <div class="callout">
+    <strong>不要因为"Agent 火"就用 Agent。</strong>
+    决策拒绝 Agent 的常见信号：单步能解决的简单任务、可枚举步骤的处理、
+    延迟或成本敏感（Agent 通常 token 消耗是单次调用的 5–15 倍）、
+    安全性关键且结果必须 100% 确定的场景。
+  </div>
+
+  <h2>§ 8. 自测题（可自我判分）</h2>
+
+  <details>
+    <summary>Q1. 请用一句话给出 Agent 的定义，并指出和 Workflow 最关键的一个区别。</summary>
+    <p><strong>参考答案：</strong>Agent 是在循环中自主选择下一步行动的 LLM 系统；与 Workflow 的关键区别在于<strong>路径由谁决定</strong>——Workflow 由代码预定义，Agent 由模型根据环境反馈动态决定。</p>
+  </details>
+
+  <details>
+    <summary>Q2. ReAct 循环的三个标准步骤分别是什么？为什么要循环？</summary>
+    <p><strong>参考答案：</strong>Thought（推理）→ Action（行动）→ Observation（观察）。
+    循环是因为：单步答案经常不够完成复杂任务，每一步都可能错，需要从观察里修正。</p>
+  </details>
+
+  <details>
+    <summary>Q3. 为什么 Agent 的错误会"compound"（复合放大）？</summary>
+    <p><strong>参考答案：</strong>因为每一步的输出都成为下一步的输入；如果第二步的假设错了，
+    后续所有步骤都会站在错的前提上推理，造成错误层层叠加。
+    因此常配合 Reflexion / Evaluator-Optimizer 来中途纠偏。</p>
+  </details>
+
+  <details>
+    <summary>Q4. 给出 2 个适合 Agent 的场景和 2 个不适合 Agent 的场景。</summary>
+    <p><strong>参考答案：</strong>适合：① 能跑测试自动反馈的代码 Agent；② 跨多个数据源、需要动态分支的研究类任务。
+    不适合：① 单步就能完成的摘要；② 输出必须确定、延迟敏感的生产关键路径。</p>
+  </details>
+
+  <details>
+    <summary>Q5. "短期记忆"和"长期记忆"分别是什么机制？短期记忆的极限来自哪里？</summary>
+    <p><strong>参考答案：</strong>短期记忆 = LLM 当前上下文窗口里的对话/思考（In-context learning）；
+    长期记忆 = 外部向量库/数据库 + 检索。
+    短期记忆的极限来自<strong>上下文窗口有限 + 注意力预算有限</strong>（详细内容参见姊妹篇《LLM Context》）。</p>
+  </details>
+
+  <h2>§ 9. 参考资料</h2>
+  <ul class="source">
+    <li>
+      <strong>Lilian Weng — <em>LLM Powered Autonomous Agents</em></strong> (2023-06-23)
+      <div class="meta">综述博客，开创性提出 Planning + Memory + Tool Use 三组件框架。Anthropic/OpenAI 安全研究员 Lilian Weng 撰写。</div>
+      <a class="url" href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener">https://lilianweng.github.io/posts/2023-06-23-agent/</a>
+    </li>
+    <li>
+      <strong>Anthropic Engineering — <em>Building effective agents</em></strong> (2024-12-19)
+      <div class="meta">Erik Schluntz &amp; Barry Zhang。提出 Workflow vs Agent 区分、五种常见模式（增强型 LLM / 提示链 / 路由 / 并行化 / 编排者-工作者 / 评估者-优化者）。</div>
+      <a class="url" href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener">https://www.anthropic.com/research/building-effective-agents</a>
+    </li>
+    <li>
+      <strong>Yao et al. — <em>ReAct: Synergizing Reasoning and Acting in Language Models</em></strong> (2023, ICLR)
+      <div class="meta">ReAct（Reason + Act）模式原始论文，定义 Thought/Action/Observation 循环。</div>
+      <a class="url" href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener">https://arxiv.org/abs/2210.03629</a>
+    </li>
+    <li>
+      <strong>Shinn et al. — <em>Reflexion: Language Agents with Verbal Reinforcement Learning</em></strong> (2023)
+      <div class="meta">提出"自我反思"机制，用于多轮迭代纠正错误。</div>
+      <a class="url" href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener">https://arxiv.org/abs/2303.11366</a>
+    </li>
+  </ul>
+
+  <div class="checklist">
+    <strong>自检清单</strong>
+    <ul>
+      <li>包含个人化解释（不只是名词堆砌）</li>
+      <li>覆盖核心机制（ReAct + 三组件）</li>
+      <li>含 1 个端到端应用场景（SWE-bench Agent）</li>
+      <li>列出 2 组以上易混淆对照（vs Chatbot / vs Workflow）和使用边界</li>
+      <li>5 道自测题，全部可自我判分</li>
+      <li>引用链接已抽样验证（WebSearch 已确认 URL 真实）</li>
+      <li>篇幅与 length=standard 匹配</li>
+    </ul>
+  </div>
+
+  <footer>
+    ✅ 已自检：本资料由 concept-learning-material-generator Skill 概念学习资料生成流程生成，引用链接均经过搜索验证可访问。
+  </footer>
+</main>
+</body>
+</html>
